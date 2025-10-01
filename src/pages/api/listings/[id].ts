@@ -580,13 +580,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (about?.photos && Array.isArray(about.photos)) {
         extractedMediaIds = about.photos.map((photo: any) => photo.id).filter(Boolean)
         
-        // Update primary image setting
+        // Update primary image setting - only for existing media records
         for (const photo of about.photos) {
           if (photo.id && photo.isPrimary !== undefined) {
-            await prisma.media.update({
-              where: { id: photo.id },
-              data: { isPrimary: photo.isPrimary }
-            })
+            try {
+              // Check if the media record exists first
+              const existingMedia = await prisma.media.findUnique({
+                where: { id: photo.id }
+              })
+              
+              if (existingMedia) {
+                await prisma.media.update({
+                  where: { id: photo.id },
+                  data: { isPrimary: photo.isPrimary }
+                })
+              } else {
+                console.warn(`[api/listings/${id}] Media record ${photo.id} not found, skipping isPrimary update`)
+              }
+            } catch (mediaUpdateError) {
+              console.error(`[api/listings/${id}] Error updating media ${photo.id}:`, mediaUpdateError)
+              // Continue processing other photos instead of failing the entire request
+            }
           }
         }
       }
@@ -595,56 +609,66 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (about?.video) {
         console.log(`[api/listings/${id}] Processing video:`, about.video);
         
-        // Check if this video already exists for this product
-        const existingVideo = await prisma.media.findFirst({
-          where: { 
-            id: about.video.id,
-            productId: id,
-            fileType: 'VIDEO'
-          }
-        });
-        
-        if (existingVideo) {
-          // Video already exists for this product, just ensure it's in the media list
-          console.log(`[api/listings/${id}] Video already exists, preserving: ${about.video.id}`);
-          extractedMediaIds.push(about.video.id);
-        } else {
-          // Check if this is a new video that needs to be associated with this product
-          const newVideo = await prisma.media.findUnique({
-            where: { id: about.video.id }
+        try {
+          // Check if this video already exists for this product
+          const existingVideo = await prisma.media.findFirst({
+            where: { 
+              id: about.video.id,
+              productId: id,
+              fileType: 'VIDEO'
+            }
           });
           
-          if (newVideo && !newVideo.productId) {
-            // This is a new video that needs to be associated
-            console.log(`[api/listings/${id}] Associating new video: ${about.video.id}`);
-            extractedMediaIds.push(about.video.id);
-          } else if (newVideo && newVideo.productId !== id) {
-            // This video belongs to another product, need to replace existing videos
-            console.log(`[api/listings/${id}] Replacing videos with video from another product: ${about.video.id}`);
-            
-            // Remove existing videos first
-            await prisma.media.deleteMany({
-              where: {
-                productId: id,
-                fileType: 'VIDEO'
-              }
-            });
-            
-            // Then associate the new video
+          if (existingVideo) {
+            // Video already exists for this product, just ensure it's in the media list
+            console.log(`[api/listings/${id}] Video already exists, preserving: ${about.video.id}`);
             extractedMediaIds.push(about.video.id);
           } else {
-            console.log(`[api/listings/${id}] Video not found or invalid: ${about.video.id}`);
+            // Check if this is a new video that needs to be associated with this product
+            const newVideo = await prisma.media.findUnique({
+              where: { id: about.video.id }
+            });
+            
+            if (newVideo && !newVideo.productId) {
+              // This is a new video that needs to be associated
+              console.log(`[api/listings/${id}] Associating new video: ${about.video.id}`);
+              extractedMediaIds.push(about.video.id);
+            } else if (newVideo && newVideo.productId !== id) {
+              // This video belongs to another product, need to replace existing videos
+              console.log(`[api/listings/${id}] Replacing videos with video from another product: ${about.video.id}`);
+              
+              // Remove existing videos first
+              await prisma.media.deleteMany({
+                where: {
+                  productId: id,
+                  fileType: 'VIDEO'
+                }
+              });
+              
+              // Then associate the new video
+              extractedMediaIds.push(about.video.id);
+            } else {
+              console.log(`[api/listings/${id}] Video not found or invalid: ${about.video.id}`);
+            }
           }
+        } catch (videoError) {
+          console.error(`[api/listings/${id}] Error processing video:`, videoError);
+          // Continue processing without failing the entire request
         }
       } else if (about && about.video === null) {
         // Handle explicit video removal
         console.log(`[api/listings/${id}] Removing all videos (video set to null)`);
-        await prisma.media.deleteMany({
-          where: {
-            productId: id,
-            fileType: 'VIDEO'
-          }
-        });
+        try {
+          await prisma.media.deleteMany({
+            where: {
+              productId: id,
+              fileType: 'VIDEO'
+            }
+          });
+        } catch (videoRemovalError) {
+          console.error(`[api/listings/${id}] Error removing videos:`, videoRemovalError);
+          // Continue processing without failing the entire request
+        }
       }
 
       console.log(`[api/listings/${id}] update data:`, JSON.stringify({ ...data, metadata: '...' }, null, 2));
@@ -666,9 +690,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const mediaIdsToUse = extractedMediaIds.length > 0 ? extractedMediaIds : mediaIds
       if (Array.isArray(mediaIdsToUse)) {
         if (mediaIdsToUse.length > 0) {
-          tx.push(prisma.media.updateMany({ where: { id: { in: mediaIdsToUse } }, data: { productId: id } }))
+          // First, validate that all media IDs exist before trying to update them
+          const existingMediaIds = await prisma.media.findMany({
+            where: { id: { in: mediaIdsToUse } },
+            select: { id: true }
+          })
+          
+          const validMediaIds = existingMediaIds.map(m => m.id)
+          const invalidMediaIds = mediaIdsToUse.filter(id => !validMediaIds.includes(id))
+          
+          if (invalidMediaIds.length > 0) {
+            console.warn(`[api/listings/${id}] Invalid media IDs found, skipping: ${invalidMediaIds.join(', ')}`)
+          }
+          
+          // Only update existing media records
+          if (validMediaIds.length > 0) {
+            tx.push(prisma.media.updateMany({ where: { id: { in: validMediaIds } }, data: { productId: id } }))
+          }
         }
-        tx.push(prisma.media.updateMany({ where: { productId: id, id: { notIn: mediaIdsToUse } }, data: { productId: null } }))
+        
+        // Remove association from media not in the list (only if we have valid media IDs to work with)
+        const mediaIdsForDisassociation = mediaIdsToUse.length > 0 ? mediaIdsToUse : []
+        tx.push(prisma.media.updateMany({ 
+          where: { 
+            productId: id, 
+            id: { notIn: mediaIdsForDisassociation } 
+          }, 
+          data: { productId: null } 
+        }))
       }
 
       // Handle imageUrl from CSV imports by creating/updating Media records
@@ -686,9 +735,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           
           if (!existingMedia) {
             // Parse the image URL to get filename
-            const url = new URL(imageUrl);
-            const pathname = url.pathname;
-            const fileName = pathname.split('/').pop() || 'imported-image';
+            let fileName = 'imported-image';
+            try {
+              const url = new URL(imageUrl);
+              const pathname = url.pathname;
+              fileName = pathname.split('/').pop() || 'imported-image';
+            } catch (urlError) {
+              console.warn('📸 Invalid URL for image, using default filename:', imageUrl);
+            }
             
             // Determine file type from URL or assume IMAGE
             const fileType = imageUrl.toLowerCase().includes('video') || 
@@ -719,14 +773,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           } else {
             console.log('📸 Media record already exists for this URL, updating alt text if provided');
             if (imageAltText) {
-              await prisma.media.update({
-                where: { id: existingMedia.id },
-                data: { altText: imageAltText }
-              });
+              try {
+                await prisma.media.update({
+                  where: { id: existingMedia.id },
+                  data: { altText: imageAltText }
+                });
+              } catch (altTextUpdateError) {
+                console.error('📸 Error updating alt text for existing media:', altTextUpdateError);
+                // Continue without failing
+              }
             }
           }
         } catch (mediaError) {
-          console.error('Error handling media record for CSV imported image:', mediaError);
+          console.error('📸 Error handling media record for CSV imported image:', mediaError);
           // Don't fail the entire product update if media handling fails
         }
       }
@@ -735,20 +794,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         console.log(`[api/listings/${id}] Executing transaction with ${tx.length} operations`);
         console.log(`[api/listings/${id}] Transaction operations:`, tx.map((op, idx) => `${idx}: ${op.constructor.name}`));
-        await prisma.$transaction(tx)
-        console.log(`[api/listings/${id}] Transaction completed successfully`);
+        
+        if (tx.length === 0) {
+          console.log(`[api/listings/${id}] No transaction operations to execute`);
+        } else {
+          await prisma.$transaction(tx)
+          console.log(`[api/listings/${id}] Transaction completed successfully`);
+        }
       } catch (err: any) {
         console.error(`[api/listings/${id}] Transaction failed:`, err);
         console.error(`[api/listings/${id}] Error code:`, err.code);
         console.error(`[api/listings/${id}] Error meta:`, err.meta);
         console.error(`[api/listings/${id}] Full error:`, JSON.stringify(err, null, 2));
         
-        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-          const meta = err.meta as any
-          const fields = meta?.target ?? []
-          return res.status(409).json({ error: 'unique_constraint', fields, message: 'Unique constraint failed' })
+        if (err instanceof Prisma.PrismaClientKnownRequestError) {
+          if (err.code === 'P2002') {
+            const meta = err.meta as any
+            const fields = meta?.target ?? []
+            return res.status(409).json({ error: 'unique_constraint', fields, message: 'Unique constraint failed' })
+          } else if (err.code === 'P2025') {
+            // Record not found error
+            return res.status(404).json({ error: 'record_not_found', message: 'One or more records could not be found for update' })
+          }
         }
-        throw err
+        
+        // For other errors, provide a more user-friendly message
+        return res.status(500).json({ 
+          error: 'update_failed', 
+          message: 'Failed to update listing. Please check the data and try again.',
+          details: err.message 
+        })
       }
 
       // Return refreshed listing

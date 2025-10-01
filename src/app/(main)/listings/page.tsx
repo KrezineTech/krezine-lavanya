@@ -116,15 +116,7 @@ const ListingCard = ({ listing, showStats, onEdit, onCopy, onToggleActivation, o
                             {listing.personalization && <Badge variant="secondary" className="text-xs">Personalizable</Badge>}
                             {listing.giftCard && <Badge variant="outline" className="text-xs">Gift Card</Badge>}
                             {listing.vendor && <Badge variant="outline" className="text-xs">{listing.vendor}</Badge>}
-                            {listing.hasVideo && (
-                                <Badge
-                                    variant={listing.isVideoIntegratedVisible !== false ? "default" : "secondary"}
-                                    className="text-xs flex items-center gap-1"
-                                >
-                                    <Video className="h-3 w-3" />
-                                    {listing.isVideoIntegratedVisible !== false ? "Video Visible" : "Video Hidden"}
-                                </Badge>
-                            )}
+                            {/* Video badge removed per request */}
                         </div>
                         {/* Display additional metadata */}
                         {(listing.medium && listing.medium.length > 0) && (
@@ -482,15 +474,7 @@ const ListingRow = ({ listing, showStats, onEdit, onCopy, onToggleActivation, on
                         {listing.personalization && <Badge variant="secondary">Personalizable</Badge>}
                         {listing.giftCard && <Badge variant="outline">Gift Card</Badge>}
                         {listing.vendor && <Badge variant="outline">{listing.vendor}</Badge>}
-                        {listing.hasVideo && (
-                            <Badge
-                                variant={listing.isVideoIntegratedVisible !== false ? "default" : "secondary"}
-                                className="flex items-center gap-1"
-                            >
-                                <Video className="h-3 w-3" />
-                                {listing.isVideoIntegratedVisible !== false ? "Video Visible" : "Video Hidden"}
-                            </Badge>
-                        )}
+                        {/* Video badge removed per request */}
                         {listing.googleCondition && listing.googleCondition !== 'new' && (
                             <Badge variant="outline">Condition: {listing.googleCondition}</Badge>
                         )}
