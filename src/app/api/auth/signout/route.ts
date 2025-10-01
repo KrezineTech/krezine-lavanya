@@ -1,19 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { auth, signOut } from '@/lib/auth'
+// Authentication has been removed
+// This is a stub file to prevent build errors
 
-export async function POST(request: NextRequest) {
-  try {
-    // Sign out using NextAuth
-    await signOut({ redirect: false })
+import { NextResponse } from 'next/server'
 
-    return NextResponse.json({
-      message: 'Logged out successfully'
-    })
-  } catch (error) {
-    console.error('Logout error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
+export async function POST() {
+  return NextResponse.json({ 
+    error: 'Authentication has been disabled',
+    message: 'Sign out functionality is not available'
+  }, { status: 501 })
 }

@@ -9,10 +9,10 @@ const prisma = new PrismaClient()
 
 // Input validation schemas
 const updateThreadSchema = z.object({
-  status: z.enum(['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED']).optional(),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  assignedAdmin: z.string().optional(),
-  notes: z.string().optional(),
+  folder: z.enum(['INBOX', 'SENT', 'ARCHIVE', 'TRASH', 'SPAM']).optional(),
+  read: z.boolean().optional(),
+  privateNote: z.string().optional(),
+  isPreviousBuyer: z.boolean().optional(),
 })
 
 // Helper function to get CORS headers
@@ -50,10 +50,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     
     const search = searchParams.get('search') || ''
-    const status = searchParams.get('status')
-    const priority = searchParams.get('priority')
+    const folder = searchParams.get('folder')
+    const read = searchParams.get('read')
     const isOrderRelated = searchParams.get('isOrderRelated')
-    const assignedAdmin = searchParams.get('assignedAdmin')
     const dateFrom = searchParams.get('dateFrom')
     const dateTo = searchParams.get('dateTo')
     const sortBy = searchParams.get('sortBy') || 'updatedAt'
@@ -74,20 +73,16 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    if (status) {
-      where.status = status
+    if (folder) {
+      where.folder = folder
     }
 
-    if (priority) {
-      where.priority = priority
+    if (read !== null && read !== undefined) {
+      where.read = read === 'true'
     }
 
-    if (isOrderRelated !== null) {
+    if (isOrderRelated !== null && isOrderRelated !== undefined) {
       where.isOrderHelp = isOrderRelated === 'true'
-    }
-
-    if (assignedAdmin) {
-      where.assignedAdmin = assignedAdmin
     }
 
     if (dateFrom || dateTo) {
@@ -111,9 +106,7 @@ export async function GET(request: NextRequest) {
           },
           _count: {
             select: {
-              conversation: {
-                where: { isRead: false }
-              }
+              conversation: true
             }
           }
         },
@@ -128,17 +121,19 @@ export async function GET(request: NextRequest) {
     const formattedThreads = threads.map((thread: any) => ({
       id: thread.id,
       subject: thread.subject,
-      status: thread.status,
-      priority: thread.priority,
+      folder: thread.folder,
+      read: thread.read,
       customerName: thread.senderName,
       customerEmail: thread.senderEmail,
+      customerAvatar: thread.senderAvatar,
       isOrderRelated: thread.isOrderHelp,
       orderId: thread.mostRecentOrderId,
-      assignedAdmin: thread.assignedAdmin,
-      notes: thread.notes,
+      isPreviousBuyer: thread.isPreviousBuyer,
+      totalPurchased: thread.totalPurchased,
+      privateNote: thread.privateNote,
       createdAt: thread.createdAt,
       updatedAt: thread.updatedAt,
-      unreadCount: thread._count.conversation,
+      messageCount: thread._count.conversation,
       lastMessageAt: thread.conversation[0]?.createdAt,
       lastMessagePreview: thread.conversation[0]?.content?.substring(0, 100),
     }))
@@ -182,7 +177,7 @@ export async function PATCH(request: NextRequest) {
     const validatedData = updateThreadSchema.parse(body)
 
     const updatedThread = await prisma.messageThread.update({
-      where: { id: threadId },
+      where: { id: parseInt(threadId) },
       data: {
         ...validatedData,
         updatedAt: new Date(),
@@ -225,7 +220,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     await prisma.messageThread.update({
-      where: { id: threadId },
+      where: { id: parseInt(threadId) },
       data: {
         deleted: true,
         updatedAt: new Date(),

@@ -1,6 +1,12 @@
-import NextAuth from 'next-auth'
-import authOptions from '@/lib/auth'
+// Authentication has been removed
+// This is a stub file to prevent build errors
 
-const handler = NextAuth(authOptions)
+import { NextResponse } from 'next/server'
 
-export { handler as GET, handler as POST }
+export async function GET() {
+  return NextResponse.json({ error: 'Authentication has been disabled' }, { status: 501 })
+}
+
+export async function POST() {
+  return NextResponse.json({ error: 'Authentication has been disabled' }, { status: 501 })
+}

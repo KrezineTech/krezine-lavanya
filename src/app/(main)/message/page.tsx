@@ -25,7 +25,6 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useMessagingApi, type MessageThread, type ConversationMessage, type QuickReply as ApiQuickReply, type Label as ApiLabel } from '@/hooks/useMessagingApi';
 import { useRealtime } from '@/hooks/useRealtime';
-import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
 
@@ -142,7 +141,6 @@ const getInitials = (name: string | undefined) => {
 export default function MessagePage() {
     const { toast } = useToast();
     const api = useMessagingApi();
-    const { data: session } = useSession();
     
     // Real-time connection
     const socket = useRealtime({

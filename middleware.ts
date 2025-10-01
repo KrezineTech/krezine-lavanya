@@ -1,7 +1,8 @@
-import {auth} from '@/lib/auth'
 import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export default auth((req: any) => {
+// Middleware function - authentication has been removed
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // Skip middleware for OPTIONS requests (CORS preflight)
@@ -37,51 +38,13 @@ export default auth((req: any) => {
   ) || pathname.startsWith('/admin') || pathname.startsWith('/api/admin');
 
   if (isAdminRoute) {
-    // Allow bypassing authentication in development if explicitly enabled
-    if (process.env.NODE_ENV === 'development' && process.env.ADMIN_AUTH_BYPASS === 'true') {
-      return NextResponse.next()
-    }
-
-    // Check authentication
-    const session = req.auth
-
-    if (!session || !session.user) {
-      // For API routes, return 401 instead of redirect
-      if (pathname.startsWith('/api/admin')) {
-        return NextResponse.json(
-          { error: 'Unauthorized', message: 'Authentication required' },
-          { status: 401 }
-        )
-      } else {
-        // For page routes, return 401 instead of redirect
-        return NextResponse.json(
-          { error: 'Unauthorized', message: 'Authentication required' },
-          { status: 401 }
-        )
-      }
-    }
-
-    // Check if user has admin role
-    const allowedRoles = ['ADMIN', 'SUPER_ADMIN']
-    if (!allowedRoles.includes(session.user.role)) {
-      // For API routes, return 403 instead of redirect
-      if (pathname.startsWith('/api/admin')) {
-        return NextResponse.json(
-          { error: 'Forbidden', message: 'Admin access required' },
-          { status: 403 }
-        )
-      } else {
-        // For page routes, return 403 instead of redirect
-        return NextResponse.json(
-          { error: 'Forbidden', message: 'Admin access required' },
-          { status: 403 }
-        )
-      }
-    }
+    // Authentication has been removed - allow all access
+    // TODO: Re-implement authentication when needed
+    return NextResponse.next()
   }
 
   return NextResponse.next()
-})
+}
 
 export const config = {
   matcher: [
