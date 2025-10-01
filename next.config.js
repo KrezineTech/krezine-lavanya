@@ -20,6 +20,20 @@ const nextConfig = {
           { key: 'Access-Control-Max-Age', value: '86400' },
         ],
       },
+      {
+        source: '/uploads/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: '/api/uploads/:path*',
+      },
     ];
   },
   images: {
@@ -34,6 +48,18 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '3000',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '178.128.73.55',
+        port: '',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '178.128.73.55',
+        port: '',
         pathname: '/uploads/**',
       },
       {
@@ -92,10 +118,13 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     // Custom loader timeout handling
     loader: 'default',
-    domains: [], // deprecated but keeping for backwards compatibility
+    domains: ['178.128.73.55', 'localhost'], // deprecated but keeping for backwards compatibility
     // Increase the timeout for image optimization
     minimumCacheTTL: 60,
     formats: ['image/webp'],
+    // Disable optimization for paths that match /uploads/
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 };
 
