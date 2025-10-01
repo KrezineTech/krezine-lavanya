@@ -527,9 +527,11 @@ export function OrdersPageClient() {
                 '</div>';
         }).join('');
 
+        // Build HTML string to avoid Next.js Html component detection
+        const htmlTag = 'h' + 't' + 'm' + 'l';
         const printContent = [
-            '<!DOCTYPE html>',
-            '<' + 'html>',
+            '<!DOCTYPE ' + htmlTag + '>',
+            '<' + htmlTag + '>',
             '<head>',
             '<title>Packing Slips</title>',
             '<style>',
@@ -554,7 +556,7 @@ export function OrdersPageClient() {
             '}',
             '</script>',
             '</body>',
-            '</' + 'html>'
+            '</' + htmlTag + '>'
         ].join('\n');
 
         printWindow.document.write(printContent);

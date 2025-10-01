@@ -89,8 +89,9 @@ export function OrderDetailSheet({ order: initialOrder, onClose }: OrderDetailSh
             const htmlClass = document.documentElement.className;
 
             // Build HTML string without template literals to avoid Next.js build confusion
-            const docOpen = '<' + 'html class="' + htmlClass + '">';
-            const docClose = '</' + 'html>';
+            const htmlTag = 'h' + 't' + 'm' + 'l';
+            const docOpen = '<' + htmlTag + ' class="' + htmlClass + '">';
+            const docClose = '</' + htmlTag + '>';
             
             const htmlContent = [
                 '<!DOCTYPE html>',
