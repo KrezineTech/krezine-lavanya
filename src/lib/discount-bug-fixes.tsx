@@ -3,6 +3,15 @@
  * Addresses the specific issues identified in the assessment
  */
 
+import React, { useState, useEffect, Component, ReactNode, ErrorInfo } from 'react';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import { useToast } from "@/hooks/use-toast";
+
 // Fix 1: Enhanced time field handling in the discount edit page
 export const TimePickerComponent = ({ value, onChange, label }: {
   value: string;
@@ -70,7 +79,7 @@ export const buyXGetYApiHandler = async (req: NextApiRequest, res: NextApiRespon
       const discountData = {
         title: `Buy ${customerBuys.quantity} get ${customerGets.quantity}`,
         code: code,
-        status: 'Draft',
+        status: 'Draft' as const,
         method: method,
         type: 'Buy X get Y',
         value: customerGets.discountedValue.value,

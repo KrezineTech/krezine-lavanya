@@ -25,6 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useMessagingApi, type MessageThread, type ConversationMessage, type QuickReply as ApiQuickReply, type Label as ApiLabel } from '@/hooks/useMessagingApi';
 import { useRealtime } from '@/hooks/useRealtime';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
 
@@ -141,10 +142,11 @@ const getInitials = (name: string | undefined) => {
 export default function MessagePage() {
     const { toast } = useToast();
     const api = useMessagingApi();
+    const { data: session } = useSession();
     
-    // Real-time connection (disabled since authentication removed)
+    // Real-time connection
     const socket = useRealtime({
-        enabled: false, // Disabled - no authentication
+        enabled: true,
         role: 'admin',
         onNewMessage: (event) => {
             console.log('📨 Real-time message received:', event);
@@ -173,7 +175,12 @@ export default function MessagePage() {
                         return prev;
                     }
                     console.log('Adding new message to UI:', newMessage.id);
-                    return [...prev, newMessage];
+                    const newMessages = [...prev, newMessage];
+                    
+                    // Smooth scroll to bottom after state update
+                    setTimeout(() => scrollToBottom(false), 100);
+                    
+                    return newMessages;
                 });
 
                 // Update thread's last message info
@@ -231,28 +238,23 @@ export default function MessagePage() {
     // Delete Confirmation
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-    // Auto-scroll to bottom when new messages arrive (only if user is already near bottom)
-    useEffect(() => {
-        // For ScrollArea, we need to find the actual scrollable element
-        const scrollAreaElement = messagesEndRef.current?.closest('[data-radix-scroll-area-viewport]');
-        const scrollContainer = scrollAreaElement || messagesEndRef.current?.parentElement;
-
-        if (scrollContainer && messages.length > 0) {
-            const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
-            const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100; // Within 100px of bottom
-
-            if (isNearBottom) {
-                // Use setTimeout to ensure DOM has updated
-                setTimeout(() => {
-                    scrollToBottom();
-                }, 0);
-            }
+    // Auto-scroll to bottom when new messages arrive
+    const scrollToBottom = useCallback((immediate = false) => {
+        if (messagesEndRef.current) {
+            const behavior = immediate ? 'auto' : 'smooth';
+            messagesEndRef.current.scrollIntoView({ behavior, block: 'end' });
         }
-    }, [messages]);
+    }, []);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    };
+    // More controlled scrolling that prevents jumping to top
+    useEffect(() => {
+        // Use a small delay to ensure DOM has updated
+        const timeoutId = setTimeout(() => {
+            scrollToBottom(false);
+        }, 50);
+        
+        return () => clearTimeout(timeoutId);
+    }, [messages, scrollToBottom]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
@@ -284,11 +286,6 @@ export default function MessagePage() {
 
         // Join thread room for real-time updates
         socket.joinThread(parseInt(thread.id));
-
-        // Scroll to bottom when loading thread
-        setTimeout(() => {
-            scrollToBottom();
-        }, 100);
     };
     
     const handleSaveNote = async (newNote: string) => {
@@ -320,11 +317,7 @@ export default function MessagePage() {
                 socket.markAsRead(parseInt(viewingThread.id), messageIds);
             }
 
-            // Fallback: reload messages to ensure UI updates (since real-time may not work)
-            await api.loadMessages(viewingThread.id);
-            setMessages(api.messages);
-
-            // The real-time broadcast should also update the UI automatically
+                        // Fallback: reload messages to ensure UI updates (since real-time may not work)\n            await api.loadMessages(viewingThread.id);\n            setMessages(api.messages);\n            \n            // Scroll to bottom after sending message\n            setTimeout(() => scrollToBottom(false), 100);\n\n            // The real-time broadcast should also update the UI automatically
         } catch (error) {
             console.error('Error sending message:', error);
             // Restore the message content on error

@@ -1,0 +1,218 @@
+[
+  {
+    "id": "#175740215219587",
+    "customerName": "Harshal Mistry",
+    "customerEmail": "mistryharshal2611@gmail.com",
+    "items": [
+      {
+        "name": "Lord Ganesha  ",
+        "price": 12502,
+        "quantity": 1,
+        "sku": "lord-ganesha-painting",
+        "total": 12502,
+        "image": "/uploads/1755766405264-ganesha9.jpg"
+      },
+      {
+        "name": "Abstract Flow Art",
+        "price": 18000,
+        "quantity": 1,
+        "sku": "abstract-flow-art",
+        "total": 18000,
+        "image": "/uploads/1755925878156-abstract 2.jpg"
+      }
+    ],
+    "subtotal": 30502,
+    "shipping": {
+      "method": "Standard Shipping",
+      "cost": "US$ 0.00",
+      "destination": "Himmatnagar, Gujarat"
+    },
+    "tax": 5490,
+    "total": 35992,
+    "shippingAddress": "Harshal Mistry\n12,vinayaknagar,chappariya,himmatnagar\nHimmatnagar, Gujarat 383001\nIndia",
+    "billingAddress": "Harshal Mistry\n12,vinayaknagar,chappariya,himmatnagar\nHimmatnagar, Gujarat 383001\nIndia",
+    "status": "Completed",
+    "paymentStatus": "Pending",
+    "fulfillmentStatus": "Fulfilled",
+    "createdAt": "2025-09-09T07:15:52.195Z",
+    "orderedDate": "2025-09-09T07:15:52.195Z",
+    "shipByDate": "2025-09-16T07:15:52.195Z",
+    "totalPrice": "US$ 35992.00",
+    "destinationCountry": "India",
+    "hasNote": false,
+    "isGift": false,
+    "isPersonalizable": false,
+    "completedAt": "2025-09-10T05:28:30.956Z",
+    "updatedAt": "2025-09-10T05:28:30.969Z"
+  },
+  {
+    "id": "#1757921720639923",
+    "customerName": "Harry great",
+    "customerEmail": "harrygreat2002@gmail.com",
+    "items": [
+      {
+        "name": "Modern Abstract Ganesha Painting: Silver Leaf Indian Art, Entryway Decor",
+        "price": 222.95,
+        "quantity": 1,
+        "sku": "modern-abstract-ganesha-painting-silver-leaf-indian-art-entryway-decor-84",
+        "total": 222.95,
+        "image": "http://localhost:3000/api/uploads/1757592196725-om.jpg"
+      },
+      {
+        "name": "Ganesha painting Indian ",
+        "price": 217.51,
+        "quantity": 1,
+        "sku": "ganesha-painting-indian-abstract-art-hindu-wall-art-original-canvas-painting-acrylic-painting-modern-2",
+        "total": 217.51,
+        "image": "http://localhost:3000/api/uploads/1757592228675-shikh.jpg"
+      },
+      {
+        "name": "Textured Ganesha Painting: Abstract Indian Art, Gold & Silver Leaf",
+        "price": 222.95,
+        "quantity": 3,
+        "sku": "textured-ganesha-painting-abstract-indian-art-gold-silver-leaf-5",
+        "total": 668.8499999999999,
+        "image": "https://i.etsystatic.com/22844396/r/il/85e245/7072021408/il_794xN.7072021408_g3qs.jpg"
+      }
+    ],
+    "subtotal": 1109.31,
+    "shipping": {
+      "method": "Standard Shipping",
+      "cost": "US$ 500.00",
+      "destination": "Himmatnagar, Gujarat"
+    },
+    "tax": 200,
+    "total": 1809.31,
+    "shippingAddress": "Harry great\n12,vinayaknagar,chappariya\nHimmatnagar, Gujarat 383001\nIndia",
+    "billingAddress": "Harry great\n12,vinayaknagar,chappariya\nHimmatnagar, Gujarat 383001\nIndia",
+    "status": "Not Shipped",
+    "paymentStatus": "Pending",
+    "fulfillmentStatus": "Unfulfilled",
+    "createdAt": "2025-09-15T07:35:20.640Z",
+    "orderedDate": "2025-09-15T07:35:20.640Z",
+    "shipByDate": "2025-09-22T07:35:20.640Z",
+    "totalPrice": "US$ 1809.31",
+    "destinationCountry": "India",
+    "hasNote": false,
+    "isGift": false,
+    "isPersonalizable": false
+  },
+  {
+    "id": "#1757940747278948",
+    "customerName": "Harshal Mistry",
+    "customerEmail": "jonsnow0569@gmail.com",
+    "items": [
+      {
+        "name": "Modern Abstract Ganesha Painting: Silver Leaf Indian Art, Entryway Decor",
+        "price": 222.95,
+        "quantity": 1,
+        "sku": "modern-abstract-ganesha-painting-silver-leaf-indian-art-entryway-decor-84",
+        "total": 222.95,
+        "image": "http://localhost:3000/api/uploads/1757592196725-om.jpg"
+      }
+    ],
+    "subtotal": 222.95,
+    "shipping": {
+      "method": "Standard Shipping",
+      "cost": "US$ 500.00",
+      "destination": "Himmatnagar, Gujarat"
+    },
+    "tax": 40,
+    "total": 762.95,
+    "shippingAddress": "Harshal Mistry\n12,vinayaknagar,chappariya,himmatnagar\nHimmatnagar, Gujarat 383001\nIndia",
+    "billingAddress": "Harshal Mistry\n12,vinayaknagar,chappariya,himmatnagar\nHimmatnagar, Gujarat 383001\nIndia",
+    "status": "Not Shipped",
+    "paymentStatus": "Pending",
+    "fulfillmentStatus": "Unfulfilled",
+    "createdAt": "2025-09-15T12:52:27.279Z",
+    "orderedDate": "2025-09-15T12:52:27.279Z",
+    "shipByDate": "2025-09-22T12:52:27.279Z",
+    "totalPrice": "US$ 762.95",
+    "destinationCountry": "India",
+    "hasNote": false,
+    "isGift": false,
+    "isPersonalizable": false
+  },
+  {
+    "id": "#1757998212047513",
+    "userId": "cmfknpkzb0000kutou2m6s4wk",
+    "customerName": "Harry Josnow",
+    "customerEmail": "harrygreat2002@gmail.com",
+    "items": [
+      {
+        "name": "Shiva",
+        "price": 400,
+        "quantity": 2,
+        "sku": "shiva",
+        "total": 800,
+        "image": "http://localhost:3000/api/uploads/1757420872533-shiva 5.jpg"
+      },
+      {
+        "name": "Ganesha painting Indian Abstract Art Hindu Wall Art Original Canvas Painting, Acrylic Painting, Modern art, Large painting by Tejasvi Patel",
+        "price": 217.51,
+        "quantity": 1,
+        "sku": "ganesha-painting-indian-abstract-art-hindu-wall-art-original-canvas-painting-acrylic-painting-modern-2",
+        "total": 217.51,
+        "image": null
+      }
+    ],
+    "subtotal": 1017.51,
+    "shipping": {
+      "method": "Standard Shipping",
+      "cost": "US$ 500.00",
+      "destination": "Himmatnagar, Gujarat"
+    },
+    "tax": 183,
+    "total": 1700.51,
+    "shippingAddress": "Harry Josnow\n12, maruti society\nHimmatnagar, Gujarat 383001\nIndia",
+    "billingAddress": "Harry Josnow\n12, maruti society\nHimmatnagar, Gujarat 383001\nIndia",
+    "status": "Not Shipped",
+    "paymentStatus": "Pending",
+    "fulfillmentStatus": "Unfulfilled",
+    "createdAt": "2025-09-16T04:50:12.047Z",
+    "orderedDate": "2025-09-16T04:50:12.047Z",
+    "shipByDate": "2025-09-23T04:50:12.047Z",
+    "totalPrice": "US$ 1700.51",
+    "destinationCountry": "India",
+    "hasNote": false,
+    "isGift": false,
+    "isPersonalizable": false
+  },
+  {
+    "id": "#1757999806893603",
+    "userId": "cmfl4a87w0002kurw1vwbo4a0",
+    "customerName": "Harshal Mistry",
+    "customerEmail": "jonsnow0569@gmail.com",
+    "items": [
+      {
+        "name": "Shiva",
+        "price": 400,
+        "quantity": 1,
+        "sku": "shiva",
+        "total": 400,
+        "image": "http://localhost:3000/api/uploads/1757420872533-shiva%205.jpg"
+      }
+    ],
+    "subtotal": 400,
+    "shipping": {
+      "method": "Standard Shipping",
+      "cost": "US$ 500.00",
+      "destination": "Himmatnagar, Gujarat"
+    },
+    "tax": 72,
+    "total": 972,
+    "shippingAddress": "Harshal Mistry\n12,vinayaknagar,chappariya,himmatnagar\nHimmatnagar, Gujarat 383001\nIndia",
+    "billingAddress": "Harshal Mistry\n12,vinayaknagar,chappariya,himmatnagar\nHimmatnagar, Gujarat 383001\nIndia",
+    "status": "Not Shipped",
+    "paymentStatus": "Pending",
+    "fulfillmentStatus": "Unfulfilled",
+    "createdAt": "2025-09-16T05:16:46.893Z",
+    "orderedDate": "2025-09-16T05:16:46.893Z",
+    "shipByDate": "2025-09-23T05:16:46.893Z",
+    "totalPrice": "US$ 972.00",
+    "destinationCountry": "India",
+    "hasNote": false,
+    "isGift": false,
+    "isPersonalizable": false
+  }
+]

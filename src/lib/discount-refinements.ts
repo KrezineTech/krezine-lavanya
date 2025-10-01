@@ -6,8 +6,21 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 
+// Define the validation rule type
+type ValidationRule = {
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: RegExp;
+  transform?: (value: string) => string;
+  min?: number;
+  max?: number | ((additionalData: any) => number);
+  validator?: (value: any, additionalData?: any) => boolean;
+  message: string;
+};
+
 // 1. Enhanced validation utility for discount forms
-export const discountValidationRules = {
+export const discountValidationRules: Record<string, ValidationRule> = {
   title: {
     required: true,
     minLength: 3,
@@ -195,9 +208,9 @@ export const discountApiService = {
 
 // 4. Product/Collection selection integration (mock implementation ready for real data)
 export const useProductSelection = () => {
-  const [products, setProducts] = useState([]);
-  const [collections, setCollections] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState<{ id: string; name: string; price: number }[]>([]);
+  const [collections, setCollections] = useState<{ id: string; name: string; productCount: number }[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string; productCount: number }[]>([]);
   const [loading, setLoading] = useState(false);
 
   const searchProducts = async (query: string) => {
@@ -327,7 +340,7 @@ export const useDateTimeManagement = () => {
 
 // 6. Analytics and reporting hooks (ready for implementation)
 export const useDiscountAnalytics = (discountId?: string) => {
-  const [analytics, setAnalytics] = useState(null);
+  const [analytics, setAnalytics] = useState<null | { totalUses: number; totalSavings: number; averageOrderValue: number; conversionRate: number; popularProducts: string[]; usageOverTime: { date: string; uses: number }[] }>(null);
   const [loading, setLoading] = useState(false);
 
   const fetchAnalytics = async () => {

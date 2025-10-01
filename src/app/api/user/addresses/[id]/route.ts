@@ -35,22 +35,23 @@ const addressSchema = z.object({
 // PUT - Update a specific address
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const body = await request.json();
-    const { userId, ...addressData } = body;
+    // Extract user information from headers (set by middleware)
+    const userId = request.headers.get('X-User-Id');
+    const userEmail = request.headers.get('X-User-Email');
 
-    if (!userId) {
+    if (!userId || !userEmail) {
       return addCorsHeaders(NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
+        { error: 'Authentication required' },
+        { status: 401 }
       ));
     }
 
-    const { id } = params
+    const { id } = await params
 
-    console.log('Updating address for user ID:', userId, 'address ID:', id);
+    console.log('Updating address for user:', userEmail, 'address ID:', id);
 
     // Check if address exists and belongs to user
     const existingAddress = await prisma.userAddress.findFirst({
@@ -67,8 +68,10 @@ export async function PUT(
       ));
     }
 
+    const body = await request.json()
+
     // Validate input
-    const validatedData = addressSchema.parse(addressData)
+    const validatedData = addressSchema.parse(body)
 
     // If this is being set as default, unset other default addresses
     if (validatedData.isDefault && !existingAddress.isDefault) {
@@ -114,22 +117,23 @@ export async function PUT(
 // DELETE - Delete a specific address
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    // Extract user information from headers (set by middleware)
+    const userId = request.headers.get('X-User-Id');
+    const userEmail = request.headers.get('X-User-Email');
 
-    if (!userId) {
+    if (!userId || !userEmail) {
       return addCorsHeaders(NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
+        { error: 'Authentication required' },
+        { status: 401 }
       ));
     }
 
-    const { id } = params;
+    const { id } = await params;
 
-    console.log('Deleting address for user ID:', userId, 'address ID:', id);
+    console.log('Deleting address for user:', userEmail, 'address ID:', id);
 
     // Check if address exists and belongs to user
     const existingAddress = await prisma.userAddress.findFirst({

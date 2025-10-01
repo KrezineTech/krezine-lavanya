@@ -13,7 +13,7 @@ export async function linkVideoToProduct(videoId: string, productId: string) {
 export async function getUnlinkedVideos() {
   const response = await fetch('/api/test/video-status');
   const data = await response.json();
-  return data.videos?.filter(v => !v.productId) || [];
+  return data.videos?.filter((v: any) => !v.productId) || [];
 }
 
 export async function getVideoStatus() {

@@ -1,0 +1,713 @@
+{
+  "info": {
+    "name": "Messaging System API",
+    "description": "Comprehensive API collection for testing the messaging system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variables": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "threadId",
+      "value": "thread_123",
+      "type": "string"
+    },
+    {
+      "key": "messageId",
+      "value": "msg_123",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Customer Endpoints",
+      "item": [
+        {
+          "name": "Get Threads",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/messages?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Thread",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('threadId', response.thread.id);",
+                  "    pm.test('Thread created successfully', () => {",
+                  "        pm.expect(response.thread).to.have.property('id');",
+                  "        pm.expect(response.thread.status).to.equal('OPEN');",
+                  "    });",
+                  "}",
+                  "",
+                  "pm.test('Status code is 201', () => {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Test Thread from Postman\",\n  \"customerName\": \"John Doe\",\n  \"customerEmail\": \"john.doe@example.com\",\n  \"initialMessage\": \"This is a test message from Postman to verify the API is working correctly.\",\n  \"isOrderRelated\": true,\n  \"orderId\": \"ORD-12345\",\n  \"priority\": \"MEDIUM\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Thread Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/messages/{{threadId}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages", "{{threadId}}", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('messageId', response.message.id);",
+                  "    pm.test('Message sent successfully', () => {",
+                  "        pm.expect(response.message).to.have.property('id');",
+                  "        pm.expect(response.message.content).to.not.be.empty;",
+                  "    });",
+                  "}",
+                  "",
+                  "pm.test('Status code is 201', () => {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Thank you for your help! This is a follow-up message.\",\n  \"senderType\": \"CUSTOMER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages/{{threadId}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages", "{{threadId}}", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message with File",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "content",
+                  "value": "Please see the attached document.",
+                  "type": "text"
+                },
+                {
+                  "key": "senderType",
+                  "value": "CUSTOMER",
+                  "type": "text"
+                },
+                {
+                  "key": "attachments",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages/{{threadId}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages", "{{threadId}}", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Messages as Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messageIds\": [\"{{messageId}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages/{{threadId}}/mark-read",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages", "{{threadId}}", "mark-read"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Real-time Updates (Long Polling)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/messages/realtime?lastCheck={{$timestamp}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages", "realtime"],
+              "query": [
+                {
+                  "key": "lastCheck",
+                  "value": "{{$timestamp}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Endpoints",
+      "item": [
+        {
+          "name": "Get All Threads (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token",
+                "description": "Admin authentication token"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/messages?status=OPEN&priority=MEDIUM&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "messages"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "OPEN"
+                },
+                {
+                  "key": "priority",
+                  "value": "MEDIUM"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "isOrderRelated",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "assignedAdmin",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Thread Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"priority\": \"HIGH\",\n  \"assignedAdmin\": \"admin_user_123\",\n  \"privateNote\": \"Customer seems urgent, prioritizing this case.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/messages/{{threadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "messages", "{{threadId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Admin Reply",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Hello! Thank you for contacting us. I'll be happy to help you with your inquiry.\",\n  \"senderType\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/messages/{{threadId}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "messages", "{{threadId}}", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Update Threads",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threadIds\": [\"{{threadId}}\"],\n  \"updates\": {\n    \"status\": \"RESOLVED\",\n    \"assignedAdmin\": \"admin_user_123\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/bulk/threads",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "bulk", "threads"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Delete Threads",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threadIds\": [\"{{threadId}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/bulk/threads",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "bulk", "threads"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Quick Replies Management",
+      "item": [
+        {
+          "name": "Get Quick Replies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/quick-replies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "quick-replies"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Quick Reply",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Order Status\",\n  \"content\": \"Thank you for your inquiry about your order. Let me check the status for you right away.\",\n  \"category\": \"orders\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/quick-replies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "quick-replies"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Quick Reply",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Order Status\",\n  \"content\": \"Thank you for your inquiry about your order. I've updated your order status and you should receive an email confirmation shortly.\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/quick-replies/qr_123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "quick-replies", "qr_123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Quick Reply",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/quick-replies/qr_123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "quick-replies", "qr_123"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Labels Management",
+      "item": [
+        {
+          "name": "Get Labels",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/labels",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "labels"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Label",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"VIP Customer\",\n  \"color\": \"#ff6b35\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/labels",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "labels"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Label",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium Customer\",\n  \"color\": \"#ffa500\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/labels/label_123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "labels", "label_123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Label",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer admin-token"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/labels/label_123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "labels", "label_123"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Scenarios",
+      "item": [
+        {
+          "name": "Invalid Thread Creation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', () => {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error response contains validation details', () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"\",\n  \"customerName\": \"\",\n  \"customerEmail\": \"invalid-email\",\n  \"initialMessage\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Non-existent Thread",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', () => {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/messages/nonexistent-thread/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages", "nonexistent-thread", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unauthorized Admin Access",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401', () => {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "messages"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set timestamp for real-time polling",
+          "pm.collectionVariables.set('timestamp', new Date().toISOString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test for response time",
+          "pm.test('Response time is less than 2000ms', () => {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});",
+          "",
+          "// Global test for valid JSON (if applicable)",
+          "if (pm.response.headers.get('Content-Type')?.includes('application/json')) {",
+          "    pm.test('Response is valid JSON', () => {",
+          "        pm.response.to.be.json;",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

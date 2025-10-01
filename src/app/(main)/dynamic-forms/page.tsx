@@ -50,6 +50,34 @@ const SECTION_CONFIG = {
     description: 'Custom painting services showcase',
     icon: Video
   },
+  'HOME_INDIAN_ART_SECTION': {
+    label: 'Indian Art Section',
+    group: 'Home Page',
+    fields: ['title', 'description', 'metaData'],
+    description: 'Indian art categories showcase - Add category items with images and names',
+    icon: ImageIcon
+  },
+  'HOME_SUBCATEGORY_SLIDER': {
+    label: 'Subcategory Slider',
+    group: 'Home Page',
+    fields: ['title', 'description', 'metaData'],
+    description: 'Art style subcategories slider - Add style items with images and names',
+    icon: ImageIcon
+  },
+  'HOME_OUR_STANDARDS': {
+    label: 'Our Standards',
+    group: 'Home Page',
+    fields: ['title', 'description', 'metaData'],
+    description: 'Company standards and values - Add standard items with icons, titles and descriptions',
+    icon: FileText
+  },
+  'HOME_TESTIMONIAL_SLIDER': {
+    label: 'Testimonial Slider',
+    group: 'Home Page',
+    fields: ['title', 'description', 'metaData'],
+    description: 'Customer testimonials showcase - Add testimonial items with images and sources',
+    icon: ImageIcon
+  },
   'ABOUT_PAGE_HEADER': {
     label: 'Page Header',
     group: 'About Page',
@@ -90,6 +118,13 @@ const SECTION_CONFIG = {
     group: 'Shared Headers',
     fields: ['image', 'title'],
     description: 'Contact page header section',
+    icon: ImageIcon
+  },
+  'SHARED_CHECKOUT_HEADER': {
+    label: 'Checkout Header',
+    group: 'Shared Headers',
+    fields: ['image', 'title'],
+    description: 'Checkout page header section',
     icon: ImageIcon
   }
 } as const;
@@ -197,7 +232,7 @@ const SectionForm: React.FC<SectionFormProps> = ({ section, pages, onSave, onDel
       const submitData = {
         ...formData,
         section,
-        paragraphTexts: sectionConfig.fields.includes('paragraphTexts') ? paragraphTexts.filter(p => p.trim()) : undefined
+        paragraphTexts: (sectionConfig.fields as readonly string[]).includes('paragraphTexts') ? paragraphTexts.filter(p => p.trim()) : undefined
       };
 
       await onSave(submitData as CreateDynamicPageData, editingItem?.id);
@@ -550,8 +585,8 @@ const SectionForm: React.FC<SectionFormProps> = ({ section, pages, onSave, onDel
             
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {sectionConfig.fields.map(field => (
-                  <div key={field} className={sectionConfig.fields.includes('paragraphTexts') && field === 'paragraphTexts' ? 'md:col-span-2' : ''}>
+                {sectionConfig.fields.map((field: string) => (
+                  <div key={field} className={(sectionConfig.fields as readonly string[]).includes('paragraphTexts') && field === 'paragraphTexts' ? 'md:col-span-2' : ''}>
                     {renderField(field)}
                   </div>
                 ))}

@@ -47,6 +47,7 @@ interface SectionConfig {
   isSlider?: boolean;
   maxItems?: number;
   isFaq?: boolean;
+  isMetaDataArray?: boolean;
 }
 
 // Extended section configuration with grouping
@@ -316,7 +317,7 @@ const SectionForm: React.FC<SectionFormProps> = ({ section, pages, onSave, onDel
       };
       
       // Add FAQ-specific initialization
-      if (section === 'faq') {
+      if (SECTION_CONFIG[section]?.isFaq) {
         (baseFormData as ExtendedFormData).isVisible = true;
         (baseFormData as ExtendedFormData).order = items.length + 1;
         (baseFormData as ExtendedFormData).faqData = {

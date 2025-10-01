@@ -579,8 +579,8 @@ const ListingTable = ({ listings, showStats, selectedListings, onEdit, onCopy, o
                             </div>
                             <div className="text-center text-sm">{listing.stock}</div>
                             <div className="text-center text-sm">${listing.priceMin.toFixed(2)}</div>
-                            <div className="text-center text-sm">{listing.visits ?? 0}</div>
-                            <div className="text-center text-sm">${(listing.revenue ?? 0).toFixed(2)}</div>
+                            <div className="text-center text-sm">{listing.last30Days.visits ?? 0}</div>
+                            <div className="text-center text-sm">${(listing.allTime.revenue ?? 0).toFixed(2)}</div>
                             <div className="flex items-center justify-center">
                                 <span className={cn("px-3 py-1 rounded-full text-xs font-semibold",
                                     listing.status === 'Draft' ? 'bg-yellow-100 text-yellow-700' :

@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { requireAdminAuth } from '@/lib/api-utils'
 
 const prisma = new PrismaClient()
 
 // Get all customers with comprehensive data
 export const GET = async (request: NextRequest) => {
   try {
+    // Check admin authentication
+    await requireAdminAuth(request)
+
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '50')
@@ -71,9 +75,9 @@ export const GET = async (request: NextRequest) => {
     })
 
     // Enhance customers with calculated data
-    const enhancedCustomers = customers.map(customer => {
-      const totalSpentCents = customer.orders.reduce((sum, order) => sum + order.grandTotalCents, 0)
-      const recentOrders = customer.orders.map(order => ({
+    const enhancedCustomers = customers.map((customer: any) => {
+      const totalSpentCents = customer.orders.reduce((sum: number, order: any) => sum + order.grandTotalCents, 0)
+      const recentOrders = customer.orders.map((order: any) => ({
         id: order.id,
         number: order.number,
         total: order.grandTotalCents / 100,
@@ -84,7 +88,7 @@ export const GET = async (request: NextRequest) => {
         paymentStatus: order.paymentStatus,
         fulfillmentStatus: order.fulfillmentStatus,
         createdAt: order.createdAt,
-        itemCount: order.items.reduce((sum, item) => sum + item.quantity, 0),
+        itemCount: order.items.reduce((sum: number, item: any) => sum + item.quantity, 0),
         mainItem: order.items[0]?.name || 'No items'
       }))
 
@@ -110,7 +114,7 @@ export const GET = async (request: NextRequest) => {
     });
 
     // Assign tags based on spending and activity
-    enhancedCustomers.forEach(customer => {
+    enhancedCustomers.forEach((customer: any) => {
       const tags: string[] = []
 
       if (customer.totalSpent >= 1000) {
@@ -200,6 +204,9 @@ export const GET = async (request: NextRequest) => {
 // Update customer status
 export const PUT = async (request: NextRequest) => {
   try {
+    // Check admin authentication
+    await requireAdminAuth(request)
+
     const body = await request.json()
     const { customerId, isActive, notes } = body
 

@@ -9,8 +9,8 @@ export const listPages = async ({ q, take = 50, skip = 0 }: { q?: string; take?:
   const where = q
     ? {
         OR: [
-          { title: { contains: String(q), mode: 'insensitive' } },
-          { slug: { contains: String(q), mode: 'insensitive' } },
+          { title: { contains: String(q), mode: 'insensitive' as const } },
+          { slug: { contains: String(q), mode: 'insensitive' as const } },
         ],
       }
     : {}
@@ -31,7 +31,7 @@ export const getPageBySlug = async (slug: string) => {
   return prisma.page.findUnique({ where: { slug } })
 }
 
-const createSchema = z.object({ title: z.string().min(1), slug: z.string().min(1).regex(slugPattern), content: z.any().optional(), status: z.string().optional() })
+const createSchema = z.object({ title: z.string().min(1), slug: z.string().min(1).regex(slugPattern), content: z.any().optional(), status: z.enum(['Draft', 'Published']).optional() })
 
 export const createPage = async (payload: any) => {
   const parsed = createSchema.parse({ title: payload.title, slug: payload.slug, content: payload.content, status: payload.status })
@@ -47,7 +47,7 @@ export const createPage = async (payload: any) => {
   return created
 }
 
-const updateSchema = z.object({ title: z.string().min(1).optional(), slug: z.string().min(1).regex(slugPattern).optional(), content: z.any().optional(), status: z.string().optional() })
+const updateSchema = z.object({ title: z.string().min(1).optional(), slug: z.string().min(1).regex(slugPattern).optional(), content: z.any().optional(), status: z.enum(['Draft', 'Published']).optional() })
 
 export const updatePage = async (id: string, payload: any) => {
   const parsed = updateSchema.parse(payload)

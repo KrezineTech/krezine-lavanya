@@ -227,6 +227,7 @@ export default function AnalyticsPage() {
         const countryStats = filteredOrders.reduce((acc, order) => {
             const country = order.destinationCountry || 'Unknown';
             acc[country] = (acc[country] || 0) + 1;
+            return acc;
         }, {} as Record<string, number>);
 
         const totalOrders = filteredOrders.length;
@@ -234,7 +235,7 @@ export default function AnalyticsPage() {
             name,
             visits,
             percentage: totalOrders > 0 ? Math.round((visits / totalOrders) * 100) : 0,
-            states: [] // Simplified for now
+            states: [] as { name: string; visits: number; percentage: number; cities: { name: string; visits: number; percentage: number }[] }[]
         }));
 
         return { countries };

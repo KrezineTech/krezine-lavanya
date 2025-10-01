@@ -335,6 +335,11 @@ export class SupportLogger {
       additionalInfo: context?.additionalInfo
     });
   }
+
+  // General info logging
+  info(message: string, context?: Record<string, any>): void {
+    this.logger.info(message, context);
+  }
 }
 
 // Export singleton instance
