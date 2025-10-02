@@ -678,7 +678,7 @@ const QuickEditListingItem = ({ listing, onQuickEditChange }: { listing: Listing
     };
 
     return (
-        <Card className="bg-muted/30">
+        <Card className="bg-white">
             <CardContent className="p-4 flex flex-col md:flex-row gap-4">
                 <div className="w-full md:w-24 flex-shrink-0">
                     {imageError ? (
