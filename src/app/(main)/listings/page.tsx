@@ -1409,6 +1409,47 @@ export default function ListingsPage() {
         }
     };
 
+    // Bulk delete selected listings
+    const handleBulkDelete = async () => {
+        if (selectedListings.length === 0) {
+            toast({ variant: "destructive", title: "No listings selected" });
+            return;
+        }
+
+        const confirmMessage = `Delete ${selectedListings.length} listing${selectedListings.length > 1 ? 's' : ''}? This action cannot be undone.`;
+        if (!confirm(confirmMessage)) return;
+
+        try {
+            const deletePromises = selectedListings.map(async (id) => {
+                const res = await fetch(`/api/listings/${id}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error(`Failed to delete listing ${id}`);
+                return id;
+            });
+
+            const deletedIds = await Promise.all(deletePromises);
+
+            setListings(prev => prev.filter(l => !deletedIds.includes(l.id)));
+            setSelectedListings([]);
+            
+            toast({ 
+                title: 'Deleted', 
+                description: `Successfully deleted ${deletedIds.length} listing${deletedIds.length > 1 ? 's' : ''}.` 
+            });
+
+            // Refresh listings to update pagination
+            await fetchListings(currentPage);
+        } catch (err) {
+            console.error('Bulk delete error', err);
+            toast({ 
+                variant: 'destructive', 
+                title: 'Delete failed', 
+                description: 'Could not delete all selected listings. Some may have been deleted.' 
+            });
+            // Refresh to get current state
+            await fetchListings(currentPage);
+        }
+    };
+
     // Handle CSV import completion
     const handleImportComplete = (importedCount: number, updatedCount: number) => {
         toast({
@@ -1950,7 +1991,7 @@ export default function ListingsPage() {
                                     <Button variant="outline" size="sm" onClick={() => handleToggleActivation(selectedListings)} disabled={selectedListings.length === 0 || isQuickEditMode}>Deactivate</Button>
                                 </>
                             )}
-                            <Button variant="outline" size="sm" disabled={selectedListings.length === 0 || isQuickEditMode}>Delete</Button>
+                            <Button variant="outline" size="sm" onClick={handleBulkDelete} disabled={selectedListings.length === 0 || isQuickEditMode}>Delete</Button>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="outline" size="sm" disabled={selectedListings.length === 0 || isQuickEditMode}>
